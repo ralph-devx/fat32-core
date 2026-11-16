@@ -32,4 +32,4 @@ clean:
 	sudo rm -rf $(DIR)
 
 run: $(TARGET)
-	sudo ./$(TARGET)
+	sudo ./$(TARGET) sdb1

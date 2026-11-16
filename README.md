@@ -87,3 +87,30 @@ brw-rw----   8,1 root  9 Oct 06:08  󰡯 /dev/sda1
 /dev/sda1: LABEL_FATBOOT="DISK_IMG" LABEL="STORE N GO" UUID="0551-AC51" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="0551ac51-01"
 /dev/zram0: LABEL="zram0" UUID="9d9ad46c-8590-4dd2-a5f1-f2146fc9226a" TYPE="swap"
 ```
+
+
+```Bash
+#!!! как отформотировать флешку
+
+# размонтировать все разделы разом
+> sudo umount /dev/sda*
+
+# стереть старую разметку и подписи фс (это уберёт все разделы и инфу загрузочных образов)
+> sudo wipefs --all /dev/sda
+
+# создание новой таблицы разделов и один общий раздел на весь объём
+> sudo parted /dev/sda --script mklabel msdos mkpart primary fat32 1MiB 100%
+
+# отформотировать новый раздел /dev/sda1 в нужную файловую систему
+# так появится один чистый раздел, вместо нескольких
+> sudo mkfs.vfat -F 32 -n USB /dev/sda1 # для fat
+> sudo mkfs.exfat -n USB /dev/sda1      # для exfat
+
+# после, на всякий, вытащить флешку и заново засунуть
+```
+
+
+```Bash
+# вывести dump памяти
+> sudo dd if=/dev/nvme0n1p1 bs=512 count=1 | hexdump -Cv
+```
