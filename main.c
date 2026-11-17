@@ -16,11 +16,16 @@ int main(int argc, char *argv[]) {
     int fd = open(name_usb, O_RDONLY);
     if (fd >= 0) {
         printf("[fd]: %d\n", fd);
-        unsigned char buffer[__SECTOR_SIZE__ * 3];
-        ssize_t bytes_read = read(fd, buffer, __SECTOR_SIZE__ * 3);
+        unsigned char buffer[__SECTOR_SIZE__];
+        ssize_t bytes_read = read(fd, buffer, __SECTOR_SIZE__);
 
 		if (bytes_read >= 512) {
 			for (size_t i = 0; i < 16 && i < bytes_read; i++) {
+				// if (i % 8 == 0) {
+				// 	printf(" ");
+				// } else if (i % 16 == 0) {
+				// 	printf("\n");
+				// }
 				printf("%02X ", buffer[i]);
 			}
 			printf("\n\n=== Boot Sector and BPB Structure ===\n\n");
@@ -48,8 +53,11 @@ int main(int argc, char *argv[]) {
 		
 			printf("# %-25s %d\n",		"[BPB_FATSz32]",	*(uint32_t *)&buffer[36]);		// 32-битное значение количества секторов, занятых ОДНОЙ файловой системой FAT32
 			// printf("# %-25s %d\n",		"[BPB_ExtFlags]",	*(uint16_t *)&buffer[36]);		// тут надо прям биты разбирать
+			printf("# %-25s %d\n",		"[BPB_RootClus]",	*(uint32_t *)&buffer[44]);		// первый кластер в корневом каталоге. либо 2, либо больше
 			
-			
+			// одна из проверок корректности загрузочного сектора, но сама по себе не доказывает, что файловая система FAT32
+			printf("# %-25s %02X\n",		"[Signature_word[510]]",	buffer[510]);		// Установливает значения 0x55 (со смещением в байте 510) и 0xAA (со смещением в байте 511).
+			printf("# %-25s %02X\n",		"[Signature_word[511]]",	buffer[511]);
 		}
 	}
     close(fd);
